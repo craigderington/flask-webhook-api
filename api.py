@@ -57,7 +57,7 @@ mail = Mail(app)
 auth = HTTPBasicAuth()
 
 # mailgun_api_key
-mailgun_api_key = 'key-dfd370f4412eaccce27394f7bceaee0e'.encode('utf-8')
+mailgun_api_key = config.MAILGUN_API_KEY
 
 
 # clear all db sessions at the end of each request
