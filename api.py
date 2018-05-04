@@ -135,14 +135,14 @@ def lead_delivered():
     if request.method == 'POST':
 
         form_data = {
-            "message_id": request.form['Message-Id'],
-            "x_mail_gun_sid": request.form['X-Mailgun-Sid'],
-            "domain": request.form['domain'],
-            "event": request.form['event'],
-            "timestamp": request.form['timestamp'],
-            "recipient": request.form['recipient'],
-            "signature": request.form['signature'],
-            "token": request.form['token']
+            "message_id": request.form.get('Message-Id', 'TEST8932838993'),
+            "x_mail_gun_sid": request.form.get('X-Mailgun-Sid', 'MG939393939393'),
+            "domain": request.form.get('domain', 'mail.earlbdc.com'),
+            "event": request.form.get('event', 'delivered'),
+            "timestamp": request.form.get('timestamp', '1589367785'),
+            "recipient": request.form.get('recipient', 'craig@craigderington.me'),
+            "signature": request.form.get('signature', '1b54lwiHk840043lkq2kldkdpnm48hfllqlwmp'),
+            "token": request.form.get('token', None)
         }
 
         return jsonify(form_data), 200
