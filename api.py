@@ -152,6 +152,7 @@ def lead_delivered():
         mg_recipient = form_data['recipient']
         event = form_data['event']
 
+        """
         if verify(mailgun_api_key, token, timestamp, signature):
 
             try:
@@ -209,6 +210,9 @@ def lead_delivered():
             resp = {"Signature": form_data['signature'], "Token": form_data['token']}
             data = json.dumps(resp)
             return Response(data, status=409, mimetype='application/json')
+        """
+
+        return Response(data=form_data, status=200, mimetype='application/json')
 
     else:
         # method not allowed
