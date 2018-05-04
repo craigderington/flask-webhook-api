@@ -146,9 +146,9 @@ def lead_delivered():
         }
 
         # verify the mailgun token and signature with the api_key
-        token = form_data['token']
-        timestamp = form_data['timestamp']
-        signature = form_data['signature']
+        token = form_data['token'].encode('utf-8')
+        timestamp = form_data['timestamp'].encode('utf-8')
+        signature = form_data['signature'].encode('utf-8')
         mg_recipient = form_data['recipient']
         event = form_data['event']
 
@@ -240,9 +240,9 @@ def lead_dropped():
         }
 
         # verify the mailgun token and signature with the api_key
-        token = form_data['token']
-        timestamp = form_data['timestamp']
-        signature = form_data['signature']
+        token = form_data['token'].encode('utf-8')
+        timestamp = form_data['timestamp'].encode('utf-8')
+        signature = form_data['signature'].encode('utf-8')
         mg_recipient = form_data['recipient']
         event = form_data['event']
         reason = form_data['reason']
@@ -340,9 +340,9 @@ def lead_hard_bounce():
         }
 
         # verify the mailgun token and signature with the api_key
-        token = form_data['token']
-        timestamp = form_data['timestamp']
-        signature = form_data['signature']
+        token = form_data['token'].encode('utf-8')
+        timestamp = form_data['timestamp'].encode('utf-8')
+        signature = form_data['signature'].encode('utf-8')
         mg_recipient = form_data['recipient']
         event = form_data['event']
         code = form_data['code']
@@ -436,9 +436,9 @@ def lead_spam_complaint():
         }
 
         # verify the mailgun token and signature with the api_key
-        token = form_data['token']
-        timestamp = form_data['timestamp']
-        signature = form_data['signature']
+        token = form_data['token'].encode('utf-8')
+        timestamp = form_data['timestamp'].encode('utf-8')
+        signature = form_data['signature'].encode('utf-8')
         mg_recipient = form_data['recipient']
         event = form_data['event']
 
@@ -528,9 +528,9 @@ def lead_unsubscribe():
         }
 
         # verify the mailgun token and signature with the api_key
-        token = form_data['token']
-        timestamp = form_data['timestamp']
-        signature = form_data['signature']
+        token = form_data['token'].encode('utf-8')
+        timestamp = form_data['timestamp'].encode('utf-8')
+        signature = form_data['signature'].encode('utf-8')
         mg_recipient = form_data['recipient']
         event = form_data['event']
 
@@ -623,9 +623,9 @@ def lead_clicks():
         }
 
         # verify the mailgun token and signature with the api_key
-        token = form_data['token']
-        timestamp = form_data['timestamp']
-        signature = form_data['signature']
+        token = form_data['token'].encode('utf-8')
+        timestamp = form_data['timestamp'].encode('utf-8')
+        signature = form_data['signature'].encode('utf-8')
         mg_recipient = form_data['recipient']
         event = form_data['event']
         ip_addr = form_data['ip']
@@ -724,9 +724,9 @@ def lead_opens():
         }
 
         # verify the mailgun token and signature with the api_key
-        token = form_data['token']
-        timestamp = form_data['timestamp']
-        signature = form_data['signature']
+        token = form_data['token'].encode('utf-8')
+        timestamp = form_data['timestamp'].encode('utf-8')
+        signature = form_data['signature'].encode('utf-8')
         mg_recipient = form_data['recipient']
         event = form_data['event']
         ip_addr = form_data['ip']
