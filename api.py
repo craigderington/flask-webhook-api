@@ -17,7 +17,7 @@ import time
 
 
 # debug
-debug = False
+debug = config.DEBUG
 
 # app config
 app = Flask(__name__)
@@ -226,17 +226,17 @@ def lead_dropped():
     if request.method == 'POST':
 
         form_data = {
-            "message_id": request.form['Message-Id'],
-            "x_mail_gun_sid": request.form['X-Mailgun-Sid'],
-            "domain": request.form['domain'],
-            "event": request.form['event'],
-            "timestamp": request.form['timestamp'],
-            "recipient": request.form['recipient'],
-            "signature": request.form['signature'],
-            "token": request.form['token'],
-            "reason": request.form['reason'],
-            "code": request.form['code'],
-            "description": request.form['description']
+            "message_id": request.form.get('Message-Id', None),
+            "x_mail_gun_sid": request.form.get('X-Mailgun-Sid', None),
+            "domain": request.form.get('domain', 'mailearlbdc.com'),
+            "event": request.form.get('event', 'dropped'),
+            "timestamp": request.form.get('timestamp', None),
+            "recipient": request.form.get('recipient', None),
+            "signature": request.form.get('signature', None),
+            "token": request.form.get('token', None),
+            "reason": request.form.get('reason', None),
+            "code": request.form.get('code', None),
+            "description": request.form.get('description', None)
         }
 
         # verify the mailgun token and signature with the api_key
@@ -327,16 +327,16 @@ def lead_hard_bounce():
     if request.method == 'POST':
 
         form_data = {
-            "message_id": request.form['Message-Id'],
-            "x_mail_gun_sid": request.form['X-Mailgun-Sid'],
-            "domain": request.form['domain'],
-            "event": request.form['event'],
-            "timestamp": request.form['timestamp'],
-            "recipient": request.form['recipient'],
-            "signature": request.form['signature'],
-            "token": request.form['token'],
-            "code": request.form['code'],
-            "error": request.form['error']
+            "message_id": request.form.get('Message-Id', None),
+            "x_mail_gun_sid": request.form.get('X-Mailgun-Sid', None),
+            "domain": request.form.get('domain', 'mail.earlbdc.com'),
+            "event": request.form.get('event', 'bounce'),
+            "timestamp": request.form.get('timestamp', None),
+            "recipient": request.form.get('recipient', None),
+            "signature": request.form.get('signature', None),
+            "token": request.form.get('token', None),
+            "code": request.form.get('code', None),
+            "error": request.form.get('error', None)
         }
 
         # verify the mailgun token and signature with the api_key
@@ -425,14 +425,14 @@ def lead_spam_complaint():
     if request.method == 'POST':
 
         form_data = {
-            "message_id": request.form['Message-Id'],
-            "x_mail_gun_sid": request.form['X-Mailgun-Sid'],
-            "domain": request.form['domain'],
-            "event": request.form['event'],
-            "timestamp": request.form['timestamp'],
-            "recipient": request.form['recipient'],
-            "signature": request.form['signature'],
-            "token": request.form['token']
+            "message_id": request.form.get('Message-Id', None),
+            "x_mail_gun_sid": request.form.get('X-Mailgun-Sid', None),
+            "domain": request.form.get('domain', 'mail.earlbdc.com'),
+            "event": request.form.get('event', 'spam-complaint'),
+            "timestamp": request.form.get('timestamp', None),
+            "recipient": request.form.get('recipient', None),
+            "signature": request.form.get('signature', None),
+            "token": request.form.get('token', None)
         }
 
         # verify the mailgun token and signature with the api_key
@@ -517,14 +517,14 @@ def lead_unsubscribe():
     if request.method == 'POST':
 
         form_data = {
-            "message_id": request.form['Message-Id'],
-            "x_mail_gun_sid": request.form['X-Mailgun-Sid'],
-            "domain": request.form['domain'],
-            "event": request.form['event'],
-            "timestamp": request.form['timestamp'],
-            "recipient": request.form['recipient'],
-            "signature": request.form['signature'],
-            "token": request.form['token']
+            "message_id": request.form.get('Message-Id', None),
+            "x_mail_gun_sid": request.form.get('X-Mailgun-Sid', None),
+            "domain": request.form.get('domain', 'mail.earlbdc.com'),
+            "event": request.form.get('event', 'unsubscribe'),
+            "timestamp": request.form.get('timestamp', None),
+            "recipient": request.form.get('recipient', None),
+            "signature": request.form.get('signature', None),
+            "token": request.form.get('token', None)
         }
 
         # verify the mailgun token and signature with the api_key
@@ -609,17 +609,17 @@ def lead_clicks():
     if request.method == 'POST':
 
         form_data = {
-            "message_id": request.form['Message-Id'],
-            "x_mail_gun_sid": request.form['X-Mailgun-Sid'],
-            "domain": request.form['domain'],
-            "event": request.form['event'],
-            "timestamp": request.form['timestamp'],
-            "recipient": request.form['recipient'],
-            "signature": request.form['signature'],
-            "token": request.form['token'],
-            "ip": request.form['ip'],
-            "device_type": request.form['device-type'],
-            "campaign_name": request.form['campaign-name']
+            "message_id": request.form.get('Message-Id', None),
+            "x_mail_gun_sid": request.form.get('X-Mailgun-Sid', None),
+            "domain": request.form.get('domain', None),
+            "event": request.form.get('event', 'click'),
+            "timestamp": request.form.get('timestamp', None),
+            "recipient": request.form.get('recipient', None),
+            "signature": request.form.get('signature', None),
+            "token": request.form.get('token', None),
+            "ip": request.form.get('ip', None),
+            "device_type": request.form.get('device-type', None),
+            "campaign_name": request.form.get('campaign-name', None)
         }
 
         # verify the mailgun token and signature with the api_key
@@ -710,17 +710,17 @@ def lead_opens():
     if request.method == 'POST':
 
         form_data = {
-            "message_id": request.form['Message-Id'],
-            "x_mail_gun_sid": request.form['X-Mailgun-Sid'],
-            "domain": request.form['domain'],
-            "event": request.form['event'],
-            "timestamp": request.form['timestamp'],
-            "recipient": request.form['recipient'],
-            "signature": request.form['signature'],
-            "token": request.form['token'],
-            "ip": request.form['ip'],
-            "device_type": request.form['device-type'],
-            "campaign_name": request.form['campaign-name']
+            "message_id": request.form.get('Message-Id', None),
+            "x_mail_gun_sid": request.form.get('X-Mailgun-Sid', None),
+            "domain": request.form.get('domain', None),
+            "event": request.form.get('event', 'open'),
+            "timestamp": request.form.get('timestamp', None),
+            "recipient": request.form.get('recipient', None),
+            "signature": request.form.get('signature', None),
+            "token": request.form.get('token', None),
+            "ip": request.form.get('ip', None),
+            "device_type": request.form.get('device-type', None),
+            "campaign_name": request.form.get('campaign-name', None)
         }
 
         # verify the mailgun token and signature with the api_key
