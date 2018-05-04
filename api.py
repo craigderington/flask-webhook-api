@@ -1,6 +1,6 @@
 from flask import Flask, Response, abort, request, jsonify, g, url_for, render_template, flash
 from flask_mail import Mail, Message
-# from flask_sslify import SSLify
+from flask_sslify import SSLify
 from flask_sqlalchemy import SQLAlchemy
 from flask_httpauth import HTTPBasicAuth
 from sqlalchemy import exc, and_
@@ -21,7 +21,7 @@ debug = config.DEBUG
 
 # app config
 app = Flask(__name__)
-# sslify = SSLify(app)
+sslify = SSLify(app)
 app.config['SECRET_KEY'] = config.SECRET_KEY
 
 # Flask-Mail configuration
