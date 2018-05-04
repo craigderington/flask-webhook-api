@@ -75,6 +75,24 @@ def send_async_email(msg):
 
 
 # default routes
+@app.route('/', methods=['GET'])
+def site_root():
+    """
+    Server a nicely formatted EARL API webpage
+    :return: template
+    """
+
+    # page vars
+    today = datetime.now()
+    title = 'EARL API'
+
+    return render_template(
+        'home.html',
+        today=get_date(),
+        title=title
+    )
+
+
 @app.route('/api', methods=['GET'])
 @app.route('/api/v1.0', methods=['GET'])
 @app.route('/api/v1.0/index', methods=['GET'])
@@ -782,6 +800,18 @@ def lead_opens():
         resp = {"Message": "Method Not Allowed"}
         data = json.dumps(resp)
         return Response(data, status=405, mimetype='application/json')
+
+
+@app.route('/login', methods=['GET'])
+def login():
+    """
+    Template for Login page
+    :return:
+    """
+    return render_template(
+        'login.html',
+        today=get_date()
+    )
 
 
 @app.errorhandler(404)
