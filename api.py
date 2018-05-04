@@ -135,17 +135,86 @@ def lead_delivered():
     if request.method == 'POST':
 
         form_data = {
-            "message_id": request.form.get('Message-Id', 'TEST8932838993'),
-            "x_mail_gun_sid": request.form.get('X-Mailgun-Sid', 'MG939393939393'),
+            "message_id": request.form.get('Message-Id', None),
+            "x_mail_gun_sid": request.form.get('X-Mailgun-Sid', None),
             "domain": request.form.get('domain', 'mail.earlbdc.com'),
             "event": request.form.get('event', 'delivered'),
-            "timestamp": request.form.get('timestamp', '1589367785'),
-            "recipient": request.form.get('recipient', 'craig@craigderington.me'),
-            "signature": request.form.get('signature', '1b54lwiHk840043lkq2kldkdpnm48hfllqlwmp'),
+            "timestamp": request.form.get('timestamp', None),
+            "recipient": request.form.get('recipient', None),
+            "signature": request.form.get('signature', None),
             "token": request.form.get('token', None)
         }
 
-        return jsonify(form_data), 200
+        # verify the mailgun token and signature with the api_key
+        token = form_data['token']
+        timestamp = form_data['timestamp']
+        signature = form_data['signature']
+        mg_recipient = form_data['recipient']
+        event = form_data['event']
+
+        if verify(mailgun_api_key, token, timestamp, signature):
+
+            try:
+                av = db_session.query(AppendedVisitor).filter(
+                    AppendedVisitor.email == mg_recipient
+                ).first()
+
+                if av:
+
+                    try:
+                        lead = db_session.query(Lead).filter(
+                            Lead.appended_visitor_id == av.id
+                        ).one()
+
+                        if lead:
+                            email = av.email
+                            av_id = lead.appended_visitor_id
+                            event = form_data['event']
+
+                            # set the delivered flags in the database
+                            lead.followup_email_delivered = 1
+                            lead.followup_email_status = event
+                            lead.webhook_last_update = datetime.now()
+                            db_session.commit()
+
+                            # return a successful response
+                            return jsonify({"v_id": av_id, "email": email, "event": event, "status": 'success'}), 202
+
+                        # return 404 for lead not found
+                        else:
+                            resp = {"Error": "Lead not found..."}
+                            data = json.dumps(resp)
+                            return Response(data, status=404, mimetype='application/json')
+
+                    # database exception
+                    except exc.SQLAlchemyError as err:
+                        resp = {"Database Error": str(err)}
+                        data = json.dumps(resp)
+                        return Response(data, status=500, mimetype='application/json')
+
+                else:
+                    # return 404: no email for receipient email address
+                    resp = {"Error": "Unable to resolve the recipient email address..."}
+                    data = json.dumps(resp)
+                    return Response(data, status=404, mimetype='application/json')
+
+            # database exception
+            except exc.SQLAlchemyError as err:
+                resp = {"Database Error": str(err)}
+                data = json.dumps(resp)
+                return Response(data, status=500, mimetype='application/json')
+
+        # signature and token verification failed
+        else:
+            resp = {"Signature": form_data['signature'], "Token": form_data['token']}
+            data = json.dumps(resp)
+            return Response(data, status=409, mimetype='application/json')
+
+    else:
+        # method not allowed
+        resp = {"Message": "Method Not Allowed"}
+        data = json.dumps(resp)
+        return Response(data, status=405, mimetype='application/json')
 
 
 @app.route('/api/v1.0/webhooks/mailgun/lead/dropped', methods=['POST'])
