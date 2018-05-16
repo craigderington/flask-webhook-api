@@ -619,6 +619,7 @@ def lead_clicks():
             "token": request.form.get('token', None),
             "ip": request.form.get('ip', None),
             "device_type": request.form.get('device-type', None),
+            "client_type": request.form.get('client-type', None),
             "campaign_name": request.form.get('campaign-name', None)
         }
 
@@ -630,7 +631,8 @@ def lead_clicks():
         event = form_data['event']
         ip_addr = form_data['ip']
         device_type = form_data['device_type']
-        campaign_name = form_data['campaign-name']
+        campaign_name = form_data['campaign_name']
+        client_type = form_data['client_type']
 
         if verify(mailgun_api_key, token, timestamp, signature):
 
@@ -720,6 +722,7 @@ def lead_opens():
             "token": request.form.get('token', None),
             "ip": request.form.get('ip', None),
             "device_type": request.form.get('device-type', None),
+            "client_type": request.form.get('client-type', None),
             "campaign_name": request.form.get('campaign-name', None)
         }
 
@@ -731,7 +734,8 @@ def lead_opens():
         event = form_data['event']
         ip_addr = form_data['ip']
         device_type = form_data['device_type']
-        campaign_name = form_data['campaign-name']
+        campaign_name = form_data['campaign_name']
+        client_type = form_data['client_type']
 
         if verify(mailgun_api_key, token, timestamp, signature):
 
