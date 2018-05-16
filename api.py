@@ -193,7 +193,7 @@ def lead_delivered():
                         return Response(data, status=500, mimetype='application/json')
 
                 else:
-                    # return 404: no email for receipient email address
+                    # return 404: no email for recipient email address
                     resp = {"Error": "Unable to resolve the recipient email address..."}
                     data = json.dumps(resp)
                     return Response(data, status=404, mimetype='application/json')
@@ -629,7 +629,7 @@ def lead_clicks():
         mg_recipient = form_data['recipient']
         event = form_data['event']
         ip_addr = form_data['ip']
-        device_type = form_data['device-type']
+        device_type = form_data['device_type']
         campaign_name = form_data['campaign-name']
 
         if verify(mailgun_api_key, token, timestamp, signature):
@@ -730,7 +730,7 @@ def lead_opens():
         mg_recipient = form_data['recipient']
         event = form_data['event']
         ip_addr = form_data['ip']
-        device_type = form_data['device-type']
+        device_type = form_data['device_type']
         campaign_name = form_data['campaign-name']
 
         if verify(mailgun_api_key, token, timestamp, signature):
