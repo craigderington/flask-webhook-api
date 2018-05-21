@@ -3,11 +3,12 @@ from flask_mail import Mail, Message
 from flask_sslify import SSLify
 from flask_sqlalchemy import SQLAlchemy
 from flask_httpauth import HTTPBasicAuth
-from sqlalchemy import exc, and_
+from sqlalchemy import exc, and_, desc
 from database import db_session
 from celery import Celery
 from datetime import datetime
-from models import User, Lead, AppendedVisitor
+from models import User, Lead, AppendedVisitor, GlobalDashboard
+from twilio.rest import Client
 import config
 import json
 import random
@@ -112,6 +113,53 @@ def index():
 
     # return the response
     return jsonify(api_routes), 200
+
+
+@app.route('/api/v1.0/automation/dashboard/health/status')
+def check_earl_health():
+    """
+    Administrative function to compare the health of the EARL system.
+    :return: None or send_alerts()
+    """
+
+    # function variables
+    g1, g2, a1, a2 = range(4)
+    resp = {"EARL Health": "OK!"}
+    data = None
+    dashboards = db_session.query(GlobalDashboard.total_unique_visitors,
+                                  GlobalDashboard.total_appends).order_by(GlobalDashboard.id.desc()).limit(2).all()
+
+    for idx, dashboard in enumerate(dashboards):
+        if idx == 0:
+            g1 = int(dashboard[0])
+            a1 = int(dashboard[1])
+        else:
+            g2 = int(dashboard[0])
+            a2 = int(dashboard[1])
+
+    # compare the values from the query and trip alerts
+    # if duplicate values are found
+    if g1 and g2 > 4:
+        if compare_(g1, g2) is True:
+
+            # set up email
+            alert_email = config.ALERT_EMAIL
+            msg_subject = "EARL Automation ALERT!"
+            msg_body = "EARL Automation - Health Check Failed!"
+
+            # send email async with celery
+            send_email(alert_email, msg_subject, msg_body)
+
+            # continue comparison and trip SMS
+            if a1 and a2 > 4:
+                if compare_(a1, a2) is True:
+                    resp = send_alerts()
+
+    # return api response
+    if resp:
+        data = resp
+
+    return jsonify(resp), 200
 
 
 @app.route('/api/v1.0/webhooks/mailgun/delivered', methods=['POST'])
@@ -816,6 +864,29 @@ def login():
         'login.html',
         today=get_date()
     )
+
+
+def send_alerts():
+    """
+    Send alerts when the EARL Dashboard does not update correctly.
+    :return: twilio sid
+    """
+    admins = config.ADMINS
+    client = Client(config.TWILIO_ACCOUNT_SID, config.TWILIO_AUTH_TOKEN)
+
+    for admin in admins:
+        msg = client.messages.create(
+            to=admin,
+            from_="+14152342025",
+            body="Warning! EARL Dashboard shows duplicate entries across 2 cycles. "
+                 "Check EARL automation ASAP!")
+
+        # return the message sid
+        return msg.sid
+
+
+def compare_(a, b):
+    return a == b
 
 
 @app.errorhandler(404)
