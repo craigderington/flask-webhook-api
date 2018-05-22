@@ -854,7 +854,7 @@ def lead_opens():
         return Response(data, status=405, mimetype='application/json')
 
 
-@app.route('/login', methods=['GET'])
+@app.route('/api/v1.0/auth/login', methods=['GET'])
 def login():
     """
     Template for Login page
