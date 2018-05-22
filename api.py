@@ -26,7 +26,7 @@ sslify = SSLify(app)
 app.config['SECRET_KEY'] = config.SECRET_KEY
 
 # Flask-Mail configuration
-app.config['MAIL_SERVER'] = 'smtp.earlbdc.com'
+app.config['MAIL_SERVER'] = 'smtp.mailgun.org'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = config.MAIL_USERNAME
@@ -45,7 +45,6 @@ app.url_map.strict_slashes = False
 app.config['CELERY_BROKER_URL'] = config.CELERY_BROKER_URL
 app.config['CELERY_RESULT_BACKEND'] = config.CELERY_RESULT_BACKEND
 app.config['CELERY_ACCEPT_CONTENT'] = config.CELERY_ACCEPT_CONTENT
-app.config.update(accept_content=['json', 'pickle'])
 
 # Initialize Celery
 celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
@@ -131,11 +130,11 @@ def check_earl_health():
 
     for idx, dashboard in enumerate(dashboards):
         if idx == 0:
-            g1 = int(dashboard[0])
-            a1 = int(dashboard[1])
+            g1 = 12  # int(dashboard[0])
+            a1 = 15  # int(dashboard[1])
         else:
-            g2 = int(dashboard[0])
-            a2 = int(dashboard[1])
+            g2 = 12  # int(dashboard[0])
+            a2 = 15  # int(dashboard[1])
 
     # compare the values from the query and trip alerts
     # if duplicate values are found
@@ -873,16 +872,21 @@ def send_alerts():
     """
     admins = config.ADMINS
     client = Client(config.TWILIO_ACCOUNT_SID, config.TWILIO_AUTH_TOKEN)
+    messages = []
 
     for admin in admins:
+
+        # create and send the sms message to the admins
         msg = client.messages.create(
             to=admin,
             from_="+14152342025",
             body="Warning! EARL Dashboard shows duplicate entries across 2 cycles. "
                  "Check EARL automation ASAP!")
 
-        # return the message sid
-        return msg.sid
+        messages.append(msg.sid)
+
+    # return the message sid
+    return messages
 
 
 def compare_(a, b):
@@ -924,7 +928,7 @@ def send_email(to, subject, msg_body, **kwargs):
     )
     msg.body = "EARL API v1.0"
     msg.html = msg_body
-    send_async_email.delay(msg)
+    mail.send(msg)
 
 
 def get_date():
