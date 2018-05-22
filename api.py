@@ -63,7 +63,7 @@ mailgun_api_key = config.MAILGUN_API_KEY
 # clear all db sessions at the end of each request
 @app.teardown_appcontext
 def shutdown_session(exception=None):
-    db.session.remove()
+    db_session.remove()
 
 
 # tasks sections, for async functions, etc...
