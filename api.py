@@ -130,11 +130,11 @@ def check_earl_health():
 
     for idx, dashboard in enumerate(dashboards):
         if idx == 0:
-            g1 = 12  # int(dashboard[0])
-            a1 = 15  # int(dashboard[1])
+            g1 = int(dashboard[0])
+            a1 = int(dashboard[1])
         else:
-            g2 = 12  # int(dashboard[0])
-            a2 = 15  # int(dashboard[1])
+            g2 = int(dashboard[0])
+            a2 = int(dashboard[1])
 
     # compare the values from the query and trip alerts
     # if duplicate values are found
