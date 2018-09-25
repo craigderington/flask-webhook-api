@@ -182,14 +182,13 @@ def lead_delivered():
     if request.method == 'POST':
 
         form_data = {
-            "message_id": request.form.get('Message-Id', None),
-            "x_mail_gun_sid": request.form.get('X-Mailgun-Sid', None),
-            "domain": request.form.get('domain', 'mail.earlbdc.com'),
-            "event": request.form.get('event', 'delivered'),
-            "timestamp": request.form.get('timestamp', None),
-            "recipient": request.form.get('recipient', None),
-            "signature": request.form.get('signature', None),
-            "token": request.form.get('token', None)
+            "message_id": request.form.get('Message-Id'),
+            "domain": request.form.get('domain'),
+            "event": request.form.get('event'),
+            "timestamp": request.form.get('timestamp'),
+            "recipient": request.form.get('recipient'),
+            "signature": request.form.get('signature'),
+            "token": request.form.get('token')
         }
 
         # verify the mailgun token and signature with the api_key
@@ -197,7 +196,7 @@ def lead_delivered():
         timestamp = form_data['timestamp'].encode('utf-8')
         signature = form_data['signature'].encode('utf-8')
         mg_recipient = form_data['recipient']
-        event = form_data['event']
+        webhook_event = form_data['event']
 
         if verify(mailgun_api_key, token, timestamp, signature):
 
@@ -216,16 +215,16 @@ def lead_delivered():
                         if lead:
                             email = av.email
                             av_id = lead.appended_visitor_id
-                            event = form_data['event']
 
                             # set the delivered flags in the database
                             lead.followup_email_delivered = 1
-                            lead.followup_email_status = event
+                            lead.followup_email_status = webhook_event
                             lead.webhook_last_update = datetime.now()
                             db_session.commit()
 
                             # return a successful response
-                            return jsonify({"v_id": av_id, "email": email, "event": event, "status": 'success'}), 202
+                            return jsonify({"v_id": av_id, "email": email, "event": webhook_event,
+                                            "status": 'success'}), 202
 
                         # return 404 for lead not found
                         else:
@@ -243,7 +242,7 @@ def lead_delivered():
                     # return 404: no email for recipient email address
                     resp = {"Error": "Unable to resolve the recipient email address..."}
                     data = json.dumps(resp)
-                    return Response(data, status=404, mimetype='application/json')
+                    return Response(data, status=406, mimetype='application/json')
 
             # database exception
             except exc.SQLAlchemyError as err:
@@ -273,17 +272,16 @@ def lead_dropped():
     if request.method == 'POST':
 
         form_data = {
-            "message_id": request.form.get('Message-Id', None),
-            "x_mail_gun_sid": request.form.get('X-Mailgun-Sid', None),
-            "domain": request.form.get('domain', 'mailearlbdc.com'),
-            "event": request.form.get('event', 'dropped'),
-            "timestamp": request.form.get('timestamp', None),
-            "recipient": request.form.get('recipient', None),
-            "signature": request.form.get('signature', None),
-            "token": request.form.get('token', None),
-            "reason": request.form.get('reason', None),
-            "code": request.form.get('code', None),
-            "description": request.form.get('description', None)
+            "message_id": request.form.get('Message-Id'),
+            "domain": request.form.get('domain'),
+            "event": request.form.get('event'),
+            "timestamp": request.form.get('timestamp'),
+            "recipient": request.form.get('recipient'),
+            "signature": request.form.get('signature'),
+            "token": request.form.get('token'),
+            "reason": request.form.get('reason'),
+            "code": request.form.get('code'),
+            "description": request.form.get('description')
         }
 
         # verify the mailgun token and signature with the api_key
@@ -291,7 +289,7 @@ def lead_dropped():
         timestamp = form_data['timestamp'].encode('utf-8')
         signature = form_data['signature'].encode('utf-8')
         mg_recipient = form_data['recipient']
-        event = form_data['event']
+        webhook_event = form_data['event']
         reason = form_data['reason']
         code = form_data['code']
         description = form_data['description']
@@ -313,11 +311,10 @@ def lead_dropped():
                         if lead:
                             email = av.email
                             av_id = lead.appended_visitor_id
-                            event = form_data['event']
 
                             # set the dropped flags in the database
                             lead.followup_email_delivered = 0
-                            lead.followup_email_status = event
+                            lead.followup_email_status = webhook_event
                             lead.followup_email_dropped = 1
                             lead.dropped_code = code
                             lead.dropped_reason = reason
@@ -326,7 +323,8 @@ def lead_dropped():
                             db_session.commit()
 
                             # return a successful response
-                            return jsonify({"v_id": av_id, "email": email, "event": event, "status": 'success'}), 202
+                            return jsonify({"v_id": av_id, "email": email, "event": webhook_event,
+                                            "status": 'success'}), 202
 
                         # return 404 for lead not found
                         else:
@@ -344,7 +342,7 @@ def lead_dropped():
                     # return 404: no email for recipient email address
                     resp = {"Error": "Unable to resolve the recipient email address..."}
                     data = json.dumps(resp)
-                    return Response(data, status=404, mimetype='application/json')
+                    return Response(data, status=406, mimetype='application/json')
 
             # database exception
             except exc.SQLAlchemyError as err:
@@ -374,16 +372,16 @@ def lead_hard_bounce():
     if request.method == 'POST':
 
         form_data = {
-            "message_id": request.form.get('Message-Id', None),
-            "x_mail_gun_sid": request.form.get('X-Mailgun-Sid', None),
-            "domain": request.form.get('domain', 'mail.earlbdc.com'),
-            "event": request.form.get('event', 'bounce'),
-            "timestamp": request.form.get('timestamp', None),
-            "recipient": request.form.get('recipient', None),
-            "signature": request.form.get('signature', None),
-            "token": request.form.get('token', None),
-            "code": request.form.get('code', None),
-            "error": request.form.get('error', None)
+            "message_id": request.form.get('Message-Id'),
+            "x_mail_gun_sid": request.form.get('X-Mailgun-Sid'),
+            "domain": request.form.get('domain'),
+            "event": request.form.get('event'),
+            "timestamp": request.form.get('timestamp'),
+            "recipient": request.form.get('recipient'),
+            "signature": request.form.get('signature'),
+            "token": request.form.get('token'),
+            "code": request.form.get('code'),
+            "error": request.form.get('error')
         }
 
         # verify the mailgun token and signature with the api_key
@@ -391,7 +389,7 @@ def lead_hard_bounce():
         timestamp = form_data['timestamp'].encode('utf-8')
         signature = form_data['signature'].encode('utf-8')
         mg_recipient = form_data['recipient']
-        event = form_data['event']
+        webhook_event = form_data['event']
         code = form_data['code']
         bounce_error = form_data['error']
 
@@ -412,11 +410,10 @@ def lead_hard_bounce():
                         if lead:
                             email = av.email
                             av_id = lead.appended_visitor_id
-                            event = form_data['event']
 
                             # set the dropped flags in the database
                             lead.followup_email_delivered = 0
-                            lead.followup_email_status = event
+                            lead.followup_email_status = webhook_event
                             lead.followup_email_bounced = 1
                             lead.dropped_code = code
                             lead.bounce_error = bounce_error
@@ -424,7 +421,8 @@ def lead_hard_bounce():
                             db_session.commit()
 
                             # return a successful response
-                            return jsonify({"v_id": av_id, "email": email, "event": event, "status": 'success'}), 202
+                            return jsonify({"v_id": av_id, "email": email, "event": webhook_event,
+                                            "status": 'success'}), 202
 
                         # return 404 for lead not found
                         else:
@@ -442,7 +440,7 @@ def lead_hard_bounce():
                     # return 404: no email for recipient email address
                     resp = {"Error": "Unable to resolve the recipient email address..."}
                     data = json.dumps(resp)
-                    return Response(data, status=404, mimetype='application/json')
+                    return Response(data, status=406, mimetype='application/json')
 
             # database exception
             except exc.SQLAlchemyError as err:
@@ -472,14 +470,13 @@ def lead_spam_complaint():
     if request.method == 'POST':
 
         form_data = {
-            "message_id": request.form.get('Message-Id', None),
-            "x_mail_gun_sid": request.form.get('X-Mailgun-Sid', None),
-            "domain": request.form.get('domain', 'mail.earlbdc.com'),
-            "event": request.form.get('event', 'spam-complaint'),
-            "timestamp": request.form.get('timestamp', None),
-            "recipient": request.form.get('recipient', None),
-            "signature": request.form.get('signature', None),
-            "token": request.form.get('token', None)
+            "message_id": request.form.get('Message-Id'),
+            "domain": request.form.get('domain'),
+            "event": request.form.get('event'),
+            "timestamp": request.form.get('timestamp'),
+            "recipient": request.form.get('recipient'),
+            "signature": request.form.get('signature'),
+            "token": request.form.get('token')
         }
 
         # verify the mailgun token and signature with the api_key
@@ -487,7 +484,7 @@ def lead_spam_complaint():
         timestamp = form_data['timestamp'].encode('utf-8')
         signature = form_data['signature'].encode('utf-8')
         mg_recipient = form_data['recipient']
-        event = form_data['event']
+        webhook_event = form_data['event']
 
         if verify(mailgun_api_key, token, timestamp, signature):
 
@@ -506,17 +503,17 @@ def lead_spam_complaint():
                         if lead:
                             email = av.email
                             av_id = lead.appended_visitor_id
-                            event = form_data['event']
 
                             # set the dropped flags in the database
                             lead.followup_email_delivered = 0
-                            lead.followup_email_status = event
+                            lead.followup_email_status = webhook_event
                             lead.followup_email_spam = 1
                             lead.webhook_last_update = datetime.now()
                             db_session.commit()
 
                             # return a successful response
-                            return jsonify({"v_id": av_id, "email": email, "event": event, "status": 'success'}), 202
+                            return jsonify({"v_id": av_id, "email": email, "event": webhook_event,
+                                            "status": 'success'}), 202
 
                         # return 404 for lead not found
                         else:
@@ -534,7 +531,7 @@ def lead_spam_complaint():
                     # return 404: no email for recipient email address
                     resp = {"Error": "Unable to resolve the recipient email address..."}
                     data = json.dumps(resp)
-                    return Response(data, status=404, mimetype='application/json')
+                    return Response(data, status=406, mimetype='application/json')
 
             # database exception
             except exc.SQLAlchemyError as err:
@@ -564,14 +561,12 @@ def lead_unsubscribe():
     if request.method == 'POST':
 
         form_data = {
-            "message_id": request.form.get('Message-Id', None),
-            "x_mail_gun_sid": request.form.get('X-Mailgun-Sid', None),
-            "domain": request.form.get('domain', 'mail.earlbdc.com'),
-            "event": request.form.get('event', 'unsubscribe'),
-            "timestamp": request.form.get('timestamp', None),
-            "recipient": request.form.get('recipient', None),
-            "signature": request.form.get('signature', None),
-            "token": request.form.get('token', None)
+            "domain": request.form.get('domain'),
+            "event": request.form.get('event'),
+            "timestamp": request.form.get('timestamp'),
+            "recipient": request.form.get('recipient'),
+            "signature": request.form.get('signature'),
+            "token": request.form.get('token')
         }
 
         # verify the mailgun token and signature with the api_key
@@ -579,7 +574,7 @@ def lead_unsubscribe():
         timestamp = form_data['timestamp'].encode('utf-8')
         signature = form_data['signature'].encode('utf-8')
         mg_recipient = form_data['recipient']
-        event = form_data['event']
+        webhook_event = form_data['event']
 
         if verify(mailgun_api_key, token, timestamp, signature):
 
@@ -598,17 +593,17 @@ def lead_unsubscribe():
                         if lead:
                             email = av.email
                             av_id = lead.appended_visitor_id
-                            event = form_data['event']
 
                             # set the dropped flags in the database
                             lead.followup_email_delivered = 0
-                            lead.followup_email_status = event
+                            lead.followup_email_status = webhook_event
                             lead.followup_email_unsub = 1
                             lead.webhook_last_update = datetime.now()
                             db_session.commit()
 
                             # return a successful response
-                            return jsonify({"v_id": av_id, "email": email, "event": event, "status": 'success'}), 202
+                            return jsonify({"v_id": av_id, "email": email, "event": webhook_event,
+                                            "status": 'success'}), 202
 
                         # return 404 for lead not found
                         else:
@@ -626,7 +621,7 @@ def lead_unsubscribe():
                     # return 404: no email for recipient email address
                     resp = {"Error": "Unable to resolve the recipient email address..."}
                     data = json.dumps(resp)
-                    return Response(data, status=404, mimetype='application/json')
+                    return Response(data, status=406, mimetype='application/json')
 
             # database exception
             except exc.SQLAlchemyError as err:
@@ -656,18 +651,15 @@ def lead_clicks():
     if request.method == 'POST':
 
         form_data = {
-            "message_id": request.form.get('Message-Id', None),
-            "x_mail_gun_sid": request.form.get('X-Mailgun-Sid', None),
-            "domain": request.form.get('domain', None),
-            "event": request.form.get('event', 'click'),
-            "timestamp": request.form.get('timestamp', None),
-            "recipient": request.form.get('recipient', None),
-            "signature": request.form.get('signature', None),
-            "token": request.form.get('token', None),
-            "ip": request.form.get('ip', None),
-            "device_type": request.form.get('device-type', None),
-            "client_type": request.form.get('client-type', None),
-            "campaign_name": request.form.get('campaign-name', None)
+            "domain": request.form.get('domain'),
+            "event": request.form.get('event'),
+            "timestamp": request.form.get('timestamp'),
+            "recipient": request.form.get('recipient'),
+            "signature": request.form.get('signature'),
+            "token": request.form.get('token'),
+            "ip": request.form.get('ip'),
+            "device_type": request.form.get('device-type'),
+            "client_type": request.form.get('client-type')
         }
 
         # verify the mailgun token and signature with the api_key
@@ -675,10 +667,9 @@ def lead_clicks():
         timestamp = form_data['timestamp'].encode('utf-8')
         signature = form_data['signature'].encode('utf-8')
         mg_recipient = form_data['recipient']
-        event = form_data['event']
+        webhook_event = form_data['event']
         ip_addr = form_data['ip']
         device_type = form_data['device_type']
-        campaign_name = form_data['campaign_name']
         client_type = form_data['client_type']
 
         if verify(mailgun_api_key, token, timestamp, signature):
@@ -698,20 +689,21 @@ def lead_clicks():
                         if lead:
                             email = av.email
                             av_id = lead.appended_visitor_id
-                            event = form_data['event']
+                            total_clicks = lead.followup_email_clicks + 1
 
                             # set the dropped flags in the database
                             lead.followup_email_delivered = 0
-                            lead.followup_email_status = event
-                            lead.followup_email_clicks += lead.followup_email_clicks
+                            lead.followup_email_status = webhook_event
+                            lead.followup_email_clicks = total_clicks
                             lead.followup_email_click_ip = ip_addr
-                            lead.followup_email_click_campaign = campaign_name
                             lead.followup_email_click_device = device_type
+                            lead.followup_email_click_campaign = client_type
                             lead.webhook_last_update = datetime.now()
                             db_session.commit()
 
                             # return a successful response
-                            return jsonify({"v_id": av_id, "email": email, "event": event, "status": 'success'}), 202
+                            return jsonify({"v_id": av_id, "email": email, "event": webhook_event,
+                                            "status": 'success'}), 202
 
                         # return 404 for lead not found
                         else:
@@ -729,7 +721,7 @@ def lead_clicks():
                     # return 404: no email for recipient email address
                     resp = {"Error": "Unable to resolve the recipient email address..."}
                     data = json.dumps(resp)
-                    return Response(data, status=404, mimetype='application/json')
+                    return Response(data, status=406, mimetype='application/json')
 
             # database exception
             except exc.SQLAlchemyError as err:
@@ -759,18 +751,15 @@ def lead_opens():
     if request.method == 'POST':
 
         form_data = {
-            "message_id": request.form.get('Message-Id', None),
-            "x_mail_gun_sid": request.form.get('X-Mailgun-Sid', None),
-            "domain": request.form.get('domain', None),
-            "event": request.form.get('event', 'open'),
-            "timestamp": request.form.get('timestamp', None),
-            "recipient": request.form.get('recipient', None),
-            "signature": request.form.get('signature', None),
-            "token": request.form.get('token', None),
-            "ip": request.form.get('ip', None),
-            "device_type": request.form.get('device-type', None),
-            "client_type": request.form.get('client-type', None),
-            "campaign_name": request.form.get('campaign-name', None)
+            "domain": request.form.get('domain'),
+            "event": request.form.get('event'),
+            "timestamp": request.form.get('timestamp'),
+            "recipient": request.form.get('recipient'),
+            "signature": request.form.get('signature'),
+            "token": request.form.get('token'),
+            "ip": request.form.get('ip'),
+            "device_type": request.form.get('device-type'),
+            "client_type": request.form.get('client-type')
         }
 
         # verify the mailgun token and signature with the api_key
@@ -778,10 +767,9 @@ def lead_opens():
         timestamp = form_data['timestamp'].encode('utf-8')
         signature = form_data['signature'].encode('utf-8')
         mg_recipient = form_data['recipient']
-        event = form_data['event']
+        webhook_event = form_data['event']
         ip_addr = form_data['ip']
         device_type = form_data['device_type']
-        campaign_name = form_data['campaign_name']
         client_type = form_data['client_type']
 
         if verify(mailgun_api_key, token, timestamp, signature):
@@ -801,20 +789,21 @@ def lead_opens():
                         if lead:
                             email = av.email
                             av_id = lead.appended_visitor_id
-                            event = form_data['event']
+                            total_opens = lead.followup_email_opens + 1
 
                             # set the dropped flags in the database
                             lead.followup_email_delivered = 0
-                            lead.followup_email_status = event
-                            lead.followup_email_opens += lead.followup_email_opens
+                            lead.followup_email_status = webhook_event
+                            lead.followup_email_opens = total_opens
                             lead.followup_email_open_ip = ip_addr
-                            lead.followup_email_open_campaign = campaign_name
+                            lead.followup_email_open_campaign = client_type
                             lead.followup_email_open_device = device_type
                             lead.webhook_last_update = datetime.now()
                             db_session.commit()
 
                             # return a successful response
-                            return jsonify({"v_id": av_id, "email": email, "event": event, "status": 'success'}), 202
+                            return jsonify({"v_id": av_id, "email": email, "event": webhook_event,
+                                            "status": 'success'}), 202
 
                         # return 404 for lead not found
                         else:
@@ -832,7 +821,7 @@ def lead_opens():
                     # return 404: no email for recipient email address
                     resp = {"Error": "Unable to resolve the recipient email address..."}
                     data = json.dumps(resp)
-                    return Response(data, status=404, mimetype='application/json')
+                    return Response(data, status=406, mimetype='application/json')
 
             # database exception
             except exc.SQLAlchemyError as err:
